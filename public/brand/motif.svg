@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="115 95 260 255" width="100%" height="100%">
+  <!-- Upper-left Red Circle (back) -->
+  <circle cx="224.5" cy="199.0" r="95.5" fill="#BF1111" />
+  <!-- Lower-right Blue Circle (front) -->
+  <circle cx="278.0" cy="255.0" r="88.0" fill="#2E8EBF" />
+</svg>

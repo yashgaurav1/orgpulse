@@ -1,0 +1,479 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Platform: Haven (Employee Emotional Wellbeing & Mental Wellness Platform)
+    //
+    // Collection: /users/{userId}
+    // Document ID: Firebase Auth UID
+    // Fields:
+    //   - companyId: string (required, 1-100 chars, immutable) - Company tenant identifier
+    //   - email: string (required, valid email, <= 100 chars, immutable) - Corporate email
+    //   - displayName: string (required, 1-100 chars) - Employee full name
+    //   - role: string (required, enum) - Requested role ('employee', 'manager', 'hrbp', 'senior_leadership', 'company_admin')
+    //   - approvedRole: string (required, enum) - Approved role ('employee', 'manager', 'hrbp', 'senior_leadership', 'company_admin')
+    //   - isApproved: bool (required) - Approval flag, strictly false on registration, managed by HRBP/Admin
+    //   - teamId: string (optional, 1-100 chars) - Assigned delivery team/squad ID
+    //   - photoURL: string (optional, <= 500 chars) - Avatar URL
+    //   - createdAt: timestamp (required, immutable) - Registration timestamp
+    //   - updatedAt: timestamp (optional) - Profile modification timestamp
+    //
+    // Collection: /users/{userId}/companion_sessions/{sessionId}
+    // Document ID: Session UUID / auto-generated
+    // Fields:
+    //   - userId: string (required, 1-100 chars, immutable) - Must match parent userId and auth.uid
+    //   - botId: string (required, 1-100 chars) - Companion bot identifier
+    //   - title: string (optional, 1-200 chars) - Private session title
+    //   - summary: string (optional, <= 2000 chars) - Confidential session summary
+    //   - messages: list (optional, <= 200 items) - Private chat history
+    //   - createdAt: timestamp (required, immutable) - Creation timestamp
+    //   - updatedAt: timestamp (required) - Last activity timestamp
+    //
+    // Collection: /companies/{companyId}
+    // Document ID: Company tenant identifier
+    // Fields:
+    //   - name: string (required, 1-200 chars) - Organization name
+    //   - domain: string (optional, <= 100 chars) - Domain name
+    //   - createdAt: timestamp (required, immutable)
+    //
+    // Collection: /companies/{companyId}/cycles/{cycleId}
+    // Document ID: Cycle identifier (e.g. '2026-q4')
+    // Fields:
+    //   - status: string (required, enum: 'draft', 'active', 'closed', 'archived')
+    //   - startDate: timestamp (required)
+    //   - endDate: timestamp (required)
+    //
+    // Collection: /companies/{companyId}/cycles/{cycleId}/responses/{responseId}
+    // Document ID: Anonymous random UUID
+    // Security: STRICT PRIVACY INVARIANT - Revoked for all client roles (read/write: false).
+    //
+    // Collection: /companies/{companyId}/cycles/{cycleId}/participations/{receiptHash}
+    // Document ID: SHA-256 token receipt hash
+    // Security: STRICT PRIVACY INVARIANT - Managed strictly via Cloud Functions (read/write: false).
+    //
+    // Collection: /companies/{companyId}/cycles/{cycleId}/aggregates/{teamId}
+    // Document ID: Team/Squad identifier
+    // Fields:
+    //   - squadId: string (required)
+    //   - respondentCount: number (required) - N >= 5 disclosure suppression enforced
+    //   - hidden: bool (required)
+    //   - scores: map (optional) - Aggregated wellbeing scores
+    //
+    // Collection: /companies/{companyId}/support_requests/{requestId}
+    // Document ID: Request UUID / auto-generated
+    // Fields:
+    //   - employeeUid: string (required, 1-100 chars, immutable) - Requesting employee UID
+    //   - companyId: string (required, 1-100 chars, immutable) - Company tenant ID
+    //   - status: string (required, enum: 'open', 'in_progress', 'resolved', 'withdrawn')
+    //   - category: string (required, 1-100 chars) - Wellness concern category
+    //   - subject: string (required, 1-200 chars) - Short summary
+    //   - message: string (required, 1-5000 chars) - Confidential request text
+    //   - assignedHrbpUid: string (optional, 1-100 chars) - Assigned HRBP UID
+    //   - notes: string (optional, <= 5000 chars) - Internal HRBP resolution notes
+    //   - messages: list (optional, <= 100 items) - Confidential messaging thread
+    //   - createdAt: timestamp (required, immutable) - Creation timestamp
+    //   - updatedAt: timestamp (required) - Modification timestamp
+    //
+    // Collection: /companies/{companyId}/audit_logs/{logId}
+    // Document ID: Audit entry UUID / auto-generated
+    // Security: Server-written append-only log. Readable only by Company Admin & HRBP.
+    //
+    // Collection: /companion_bots/{botId}
+    // Document ID: Bot identifier (e.g. 'calm-guide', 'burnout-support')
+    // Security: Public catalog readable by any authenticated user. Writable only by Admin SDK.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Authentication & Core Helpers
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && ('uid' in resource.data) && request.auth.uid == resource.data.uid;
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) ||
+             request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) ||
+             request.resource.data.uid == resource.data.uid;
+    }
+
+    function userExists() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isCompanyMember(companyId) {
+      return isAuthenticated() &&
+             userExists() &&
+             getUserData().companyId == companyId;
+    }
+
+    function getApprovedRole() {
+      return getUserData().approvedRole;
+    }
+
+    function isRole(role) {
+      return isAuthenticated() &&
+             userExists() &&
+             getUserData().isApproved == true &&
+             getApprovedRole() == role;
+    }
+
+    function isCompanyAdmin(companyId) {
+      return isCompanyMember(companyId) && isRole('company_admin');
+    }
+
+    function isHrbp(companyId) {
+      return isCompanyMember(companyId) && isRole('hrbp');
+    }
+
+    function isSeniorLeadership(companyId) {
+      return isCompanyMember(companyId) && isRole('senior_leadership');
+    }
+
+    function isManagerOfTeam(companyId, teamId) {
+      return isCompanyMember(companyId) &&
+             isRole('manager') &&
+             ('teamId' in getUserData()) &&
+             getUserData().teamId == teamId;
+    }
+
+    // ===============================================================
+    // Validation Helper Functions
+    // ===============================================================
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+             request.resource.data[field].size() >= minLen &&
+             request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+             (request.resource.data[field] is string &&
+              request.resource.data[field].size() >= minLen &&
+              request.resource.data[field].size() <= maxLen);
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+             email.size() <= 100 &&
+             email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUrl(url) {
+      return url is string &&
+             url.size() <= 500 &&
+             (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    function isValidList(listVal, maxSize) {
+      return listVal is list && listVal.size() <= maxSize;
+    }
+
+    function isRecent(time) {
+      return time is timestamp &&
+             time > request.time - duration.value(5, 'm') &&
+             time <= request.time;
+    }
+
+    // ===============================================================
+    // Domain Validator Functions (Validator Pattern)
+    // ===============================================================
+
+    function isValidUserProfile(data) {
+      return hasOnlyAllowedFields(['companyId', 'email', 'displayName', 'role', 'approvedRole', 'isApproved', 'teamId', 'createdAt', 'updatedAt', 'photoURL']) &&
+             hasRequiredFields(['companyId', 'email', 'displayName', 'role', 'approvedRole', 'isApproved', 'createdAt']) &&
+             data.companyId is string && data.companyId.size() > 0 && data.companyId.size() <= 100 &&
+             isValidEmail(data.email) &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() <= 100 &&
+             data.role in ['employee', 'manager', 'hrbp', 'senior_leadership', 'company_admin'] &&
+             data.approvedRole in ['employee', 'manager', 'hrbp', 'senior_leadership', 'company_admin'] &&
+             data.isApproved is bool &&
+             isValidOptionalString('teamId', 1, 100) &&
+             isValidOptionalString('photoURL', 1, 500) &&
+             data.createdAt is timestamp &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidSupportRequest(data) {
+      return hasOnlyAllowedFields(['employeeUid', 'companyId', 'status', 'category', 'subject', 'message', 'assignedHrbpUid', 'notes', 'messages', 'createdAt', 'updatedAt']) &&
+             hasRequiredFields(['employeeUid', 'companyId', 'status', 'category', 'subject', 'message', 'createdAt', 'updatedAt']) &&
+             data.employeeUid is string && data.employeeUid.size() > 0 && data.employeeUid.size() <= 100 &&
+             data.companyId is string && data.companyId.size() > 0 && data.companyId.size() <= 100 &&
+             data.status in ['open', 'in_progress', 'resolved', 'withdrawn'] &&
+             data.category is string && data.category.size() > 0 && data.category.size() <= 100 &&
+             data.subject is string && data.subject.size() > 0 && data.subject.size() <= 200 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 5000 &&
+             isValidOptionalString('assignedHrbpUid', 1, 100) &&
+             isValidOptionalString('notes', 0, 5000) &&
+             (!('messages' in data) || (data.messages is list && data.messages.size() <= 100)) &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidCompanionSession(data) {
+      return hasOnlyAllowedFields(['userId', 'botId', 'title', 'messages', 'summary', 'createdAt', 'updatedAt']) &&
+             hasRequiredFields(['userId', 'botId', 'createdAt', 'updatedAt']) &&
+             data.userId is string && data.userId.size() > 0 && data.userId.size() <= 100 &&
+             data.botId is string && data.botId.size() > 0 && data.botId.size() <= 100 &&
+             isValidOptionalString('title', 1, 200) &&
+             isValidOptionalString('summary', 0, 2000) &&
+             (!('messages' in data) || (data.messages is list && data.messages.size() <= 200)) &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // ---------------------------------------------------------------
+    // 1 & 2. User Profiles & Role Approvals
+    // ---------------------------------------------------------------
+    match /users/{userId} {
+      // Read: User can read own profile; Admin and HRBP of the same company can view profiles for approvals
+      allow read: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        (
+          userExists() &&
+          (isRole('company_admin') || isRole('hrbp')) &&
+          getUserData().companyId == resource.data.companyId
+        )
+      );
+
+      // Create: User can create their profile on registration.
+      // Security Invariant: MUST NOT set approvedRole to anything other than 'employee' or set isApproved to true.
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(request.resource.data) &&
+                       request.resource.data.approvedRole == 'employee' &&
+                       request.resource.data.isApproved == false &&
+                       isRecent(request.resource.data.createdAt);
+
+      // Update:
+      // Scenario A: Self-profile update (user cannot self-assign an elevated role or approve themselves).
+      // Scenario B: Company Admin or HRBP approving roles within their company.
+      // Security Invariant: An admin/HRBP cannot self-elevate (request.auth.uid != userId for role approval changes).
+      allow update: if isAuthenticated() &&
+                       isValidUserProfile(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['companyId', 'email', 'createdAt']) &&
+                       (
+                         // Scenario A: Self-profile update by user
+                         (
+                           request.auth.uid == userId &&
+                           areImmutableFieldsUnchanged(['approvedRole', 'isApproved'])
+                         ) ||
+                         // Scenario B: Company Admin or HRBP managing approvals in their company
+                         (
+                           userExists() &&
+                           request.auth.uid != userId &&
+                           (isRole('company_admin') || isRole('hrbp')) &&
+                           getUserData().companyId == resource.data.companyId &&
+                           request.resource.data.companyId == resource.data.companyId
+                         )
+                       );
+
+      // Delete: Revoked from client to prevent audit trail destruction and data loss.
+      allow delete: if false;
+
+      // -------------------------------------------------------------
+      // 6. Companion Chat Sessions (Employee Private)
+      // -------------------------------------------------------------
+      match /companion_sessions/{sessionId} {
+        // Read, Create, Update, Delete: Allowed ONLY if request.auth.uid == userId.
+        // Strict Privacy Invariant: No employer, manager, HRBP, or admin can access.
+        allow read: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         request.resource.data.userId == userId &&
+                         isValidCompanionSession(request.resource.data) &&
+                         isRecent(request.resource.data.createdAt);
+
+        allow update: if isOwner(userId) &&
+                         areImmutableFieldsUnchanged(['userId', 'createdAt']) &&
+                         isValidCompanionSession(request.resource.data);
+
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // ---------------------------------------------------------------
+    // 1. Multi-Tenant Company Root
+    // ---------------------------------------------------------------
+    match /companies/{companyId} {
+      // Company metadata readable by authenticated members of the company
+      allow read: if isAuthenticated() && isCompanyMember(companyId);
+      allow write: if isCompanyAdmin(companyId);
+
+      // Company Join Codes
+      match /company_codes/{codeId} {
+        allow read: if isCompanyAdmin(companyId) || isHrbp(companyId);
+        allow write: if isCompanyAdmin(companyId);
+      }
+
+      // Business Units & Teams
+      match /business_units/{unitId} {
+        allow read: if isCompanyMember(companyId);
+        allow write: if isCompanyAdmin(companyId);
+      }
+
+      match /teams/{teamId} {
+        allow read: if isCompanyMember(companyId);
+        allow write: if isCompanyAdmin(companyId);
+      }
+
+      // -------------------------------------------------------------
+      // 3 & 4. Survey Cycles, Aggregates, Responses, Participations
+      // -------------------------------------------------------------
+      match /cycles/{cycleId} {
+        // Survey cycle metadata readable by verified company members
+        allow read: if isAuthenticated() && isCompanyMember(companyId);
+        allow write: if isCompanyAdmin(companyId) || isHrbp(companyId);
+
+        match /invites/{tokenHash} {
+          allow read, write: if isCompanyAdmin(companyId) || isHrbp(companyId);
+        }
+
+        // 3. SURVEY RESPONSES (CRITICAL PRIVACY INVARIANT)
+        // Strictly revoked for all client roles including admin.
+        // Written only via Cloud Functions / Admin SDK.
+        match /responses/{responseId} {
+          allow read: if false;
+          allow write: if false;
+        }
+
+        // 3. PARTICIPATIONS (CRITICAL PRIVACY INVARIANT)
+        // Managed only by Cloud Functions / Admin SDK.
+        match /participations/{receiptHash} {
+          allow read: if false;
+          allow write: if false;
+        }
+
+        // 4. AGGREGATES
+        // Read: Allowed for authenticated company members if they are Admin, HRBP,
+        // Senior Leadership, or the designated Manager of that team (getUserData().teamId == teamId).
+        // Write: Calculated exclusively by Cloud Functions.
+        match /aggregates/{teamId} {
+          allow read: if isCompanyAdmin(companyId) ||
+                         isHrbp(companyId) ||
+                         isSeniorLeadership(companyId) ||
+                         isManagerOfTeam(companyId, teamId);
+          allow write: if false;
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 5. Wellbeing Support Requests (Firewalled)
+      // -------------------------------------------------------------
+      match /support_requests/{requestId} {
+        // Read: Allowed ONLY if request.auth.uid == resource.data.employeeUid OR user is HRBP.
+        // Crucially: Managers, Senior Leadership, and non-HRBP Admins CANNOT read support requests.
+        allow read: if isAuthenticated() &&
+                       isCompanyMember(companyId) &&
+                       (
+                         request.auth.uid == resource.data.employeeUid ||
+                         isHrbp(companyId)
+                       );
+
+        // Create: Allowed if employee belongs to company, is creator, and sets status to 'open'.
+        allow create: if isAuthenticated() &&
+                         isCompanyMember(companyId) &&
+                         request.resource.data.employeeUid == request.auth.uid &&
+                         request.resource.data.companyId == companyId &&
+                         request.resource.data.status == 'open' &&
+                         isValidSupportRequest(request.resource.data) &&
+                         isRecent(request.resource.data.createdAt);
+
+        // Update:
+        // - Creator employee can withdraw or add messages.
+        // - Assigned HRBP can update status, assign HRBP, or add messages / notes.
+        allow update: if isAuthenticated() &&
+                         isCompanyMember(companyId) &&
+                         isValidSupportRequest(request.resource.data) &&
+                         areImmutableFieldsUnchanged(['employeeUid', 'companyId', 'createdAt']) &&
+                         (
+                           // Creator employee update
+                           (
+                             request.auth.uid == resource.data.employeeUid &&
+                             (
+                               request.resource.data.status == resource.data.status ||
+                               (resource.data.status != 'withdrawn' && request.resource.data.status == 'withdrawn')
+                             ) &&
+                             areImmutableFieldsUnchanged(['assignedHrbpUid', 'notes'])
+                           ) ||
+                           // HRBP update
+                           (
+                             isHrbp(companyId) &&
+                             request.resource.data.status in ['open', 'in_progress', 'resolved', 'withdrawn']
+                           )
+                         );
+
+        // Delete: Revoked to maintain confidential case history and audit integrity.
+        allow delete: if false;
+      }
+
+      // -------------------------------------------------------------
+      // 7. Append-Only Audit Logs
+      // -------------------------------------------------------------
+      match /audit_logs/{logId} {
+        // Read: Admin and HRBP only within their company.
+        allow read: if isCompanyAdmin(companyId) || isHrbp(companyId);
+
+        // Write: Server only (append-only log created by Cloud Functions).
+        allow write: if false;
+      }
+    }
+
+    // ---------------------------------------------------------------
+    // 8. Companion Bots (Public Catalog)
+    // ---------------------------------------------------------------
+    match /companion_bots/{botId} {
+      // Read: Allowed for any authenticated user.
+      allow read: if isAuthenticated();
+
+      // Write: Server only (catalog managed by platform administrators).
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------
+    // Root Fallback: Default Deny All
+    // ---------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
