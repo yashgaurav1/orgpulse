@@ -185,25 +185,6 @@ export function Sidebar() {
           </div>
         ))}
       </div>
-
-      {/* Privacy Guarantee Status in Footer */}
-      <div className="p-3 border-t border-[#0D2550] bg-[#00142E]/50">
-        {!collapsed ? (
-          <div className="p-2 rounded-control bg-[#00142E] border border-[#162C4E] space-y-1 text-[10px] font-mono">
-            <div className="flex items-center gap-1.5 text-[#2DBE78] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2DBE78] animate-live-dot" />
-              <span>N ≥ 5 Aggregation Safe</span>
-            </div>
-            <div className="text-[#6782A5]">
-              Differencing & suppression shield active.
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-center" title="N ≥ 5 Aggregation Safe">
-            <span className="w-2 h-2 rounded-full bg-[#2DBE78] animate-live-dot" />
-          </div>
-        )}
-      </div>
     </aside>
   );
 }
