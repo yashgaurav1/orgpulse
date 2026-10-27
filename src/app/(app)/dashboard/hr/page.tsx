@@ -376,13 +376,10 @@ export default function HrDashboardPage() {
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-theme-subtle">
         <div>
-          <div className="text-[11px] font-mono uppercase tracking-[0.04em] text-accent font-semibold">
-            HRBP Operations • Confidential Governance
-          </div>
-          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-theme-primary mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-theme-primary">
             HRBP Operations &amp; Support Triage
           </h1>
-          <p className="text-xs text-theme-secondary font-sans mt-0.5">
+          <p className="text-sm opacity-75 text-theme-secondary font-sans mt-1">
             Cross-squad scorecard, confidential wellbeing triage inbox, and manager commitment tracking.
           </p>
         </div>
@@ -441,7 +438,7 @@ export default function HrDashboardPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-theme-subtle text-xs font-mono overflow-x-auto">
+      <div className="flex items-center gap-6 border-b border-theme-subtle text-xs font-sans overflow-x-auto [&::-webkit-scrollbar]:hidden">
         {[
           { id: 'scorecards', label: `All Squads Scorecard (${ENTERPRISE_SQUADS.length})` },
           { id: 'triage', label: `Support Request Triage (${tickets.length})` },
@@ -455,7 +452,7 @@ export default function HrDashboardPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`py-2.5 px-3 font-medium transition-colors border-b-2 -mb-[1px] whitespace-nowrap ${
+              className={`py-2.5 px-1 font-medium transition-colors border-b-2 -mb-[1px] whitespace-nowrap ${
                 isActive
                   ? 'border-accent text-accent font-semibold'
                   : 'border-transparent text-theme-secondary hover:text-theme-primary'
@@ -470,20 +467,9 @@ export default function HrDashboardPage() {
       {/* Tab 1: All Squads Scorecard */}
       {activeTab === 'scorecards' && (
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-[0.04em] text-theme-tertiary font-semibold">
-              Twelve Engineering Squads • Multi-Unit Diagnostics
-            </span>
-            <button
-              onClick={() => handleBulkExport([])}
-              className="flex items-center gap-1.5 px-3 py-1 bg-theme-surface hover:bg-theme-raised border hairline-border rounded-control text-xs font-mono text-theme-primary transition-colors focus-ring"
-            >
-              <Download size={13} strokeWidth={1.5} />
-              <span>Export Safe CSV (N &ge; 5)</span>
-            </button>
-          </div>
-
           <DataTable
+            tableTitle="Engineering Squads (12)"
+            exportButtonLabel="Export Safe CSV (N ≥ 5)"
             columns={columns}
             data={tableRows}
             onRowClick={handleRowClick}

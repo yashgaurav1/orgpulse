@@ -16,6 +16,7 @@ import {
   Layers,
   FileText,
   RotateCcw,
+  Printer,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/components/enterprise/EnterpriseToast';
@@ -134,22 +135,34 @@ export default function ManagerDashboardPage() {
       {/* Top Header & Context */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-theme-subtle">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono uppercase tracking-[0.04em] text-accent font-semibold">
-              Operations • Delivery Squad Workspace
-            </span>
+          <h1 className="text-2xl font-bold tracking-tight text-theme-primary">
+            Delivery Manager Diagnostics
+          </h1>
+          <p className="text-sm opacity-75 text-theme-secondary font-sans mt-1">
+            Squad-level wellbeing drivers, psychological safety, and 14-day action commitments.
+          </p>
+          <div className="flex items-center gap-2 mt-2 text-xs font-sans text-theme-tertiary">
+            <span className="font-semibold text-theme-primary">{currentSquad.name}</span>
+            <span>&bull;</span>
+            <span>{currentSquad.businessUnit}</span>
+            <span>&bull;</span>
+            <span>Led by {currentSquad.leadManager}</span>
             <CopyId id={currentSquad.code} />
           </div>
-          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-theme-primary mt-1">
-            {currentSquad.name}
-          </h1>
-          <p className="text-xs text-theme-secondary font-sans mt-0.5">
-            Business Unit: {currentSquad.businessUnit} • {currentSquad.description} • Led by {currentSquad.leadManager}
-          </p>
         </div>
 
         {/* Global Selectors & Toggles */}
-        <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
+        <div className="flex flex-wrap items-center gap-2 text-xs font-sans print:hidden">
+          {/* Print Summary Button */}
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-theme-surface hover:bg-theme-raised border hairline-border rounded-control text-xs font-sans text-theme-primary transition-colors focus-ring"
+            title="Print Summary"
+          >
+            <Printer size={13} />
+            <span>Print Summary</span>
+          </button>
+
           {/* Squad Selector Dropdown (All 10 Squads) */}
           <div className="relative">
             <select
@@ -283,16 +296,22 @@ export default function ManagerDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Domain Score Bars (7 cols) */}
           <div className="lg:col-span-7 p-6 rounded-panel bg-theme-surface border hairline-border space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-theme-subtle">
-              <div className="flex items-center gap-2">
-                <StatusBadge label={cycleData.status} variant={cycleData.statusVariant} live={cycleData.status === 'Healthy Baseline'} />
-                <span className="text-xs font-mono font-semibold text-theme-primary">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-theme-subtle">
+              <div>
+                <h3 className="text-base font-semibold text-theme-primary">
                   Diagnostic Domain Breakdown
-                </span>
+                </h3>
               </div>
-              <span className="text-[11px] font-mono text-theme-tertiary">
-                Org Baseline: 3.85 / 5.00
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono text-theme-secondary">
+                  Org Baseline: <span className="text-theme-primary font-semibold">3.85</span> / 5.00
+                </span>
+                <StatusBadge
+                  label={cycleData.status}
+                  variant={cycleData.statusVariant}
+                  live={cycleData.status === 'Healthy Baseline'}
+                />
+              </div>
             </div>
 
             {/* Score bars list */}
@@ -305,27 +324,27 @@ export default function ManagerDashboardPage() {
                 const isUnderperforming = val < 3.2;
 
                 return (
-                  <div key={item.code} className="space-y-1.5 font-mono text-xs">
+                  <div key={item.code} className="space-y-1.5 font-sans text-xs">
                     <div className="flex items-baseline justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-accent font-semibold">{item.code}</span>
+                        <span className="text-accent font-semibold font-mono">{item.code}</span>
                         <span className="text-theme-primary font-medium">{item.domain}</span>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5">
                         {delta !== null && (
                           <span
-                            className={`text-[11px] font-mono tabular-nums ${
+                            className={`px-1.5 py-0.5 rounded-full font-mono text-[10px] font-medium tabular-nums ${
                               delta > 0
-                                ? 'text-success'
+                                ? 'bg-success/10 text-success'
                                 : delta < 0
-                                ? 'text-danger'
+                                ? 'bg-danger/10 text-danger'
                                 : 'text-theme-tertiary'
                             }`}
                           >
                             {delta > 0 ? `+${delta.toFixed(2)}` : delta.toFixed(2)}
                           </span>
                         )}
-                        <span className="font-semibold text-theme-primary text-sm tabular-nums">
+                        <span className="font-semibold text-theme-primary text-sm tabular-nums font-mono">
                           {val.toFixed(2)}
                         </span>
                       </div>
@@ -337,10 +356,10 @@ export default function ManagerDashboardPage() {
                     </div>
 
                     {/* Score Bar with Benchmark marker */}
-                    <div className="relative h-2 w-full bg-theme-raised rounded-xs overflow-hidden border border-theme-subtle">
+                    <div className="relative h-2.5 w-full bg-theme-raised rounded-full overflow-hidden border hairline-border">
                       {/* Org Benchmark Line at 3.85 (77%) */}
                       <div
-                        className="absolute top-0 bottom-0 w-[1.5px] bg-theme-tertiary z-10 opacity-70"
+                        className="absolute top-0 bottom-0 w-[2px] bg-theme-primary dark:bg-white z-20 shadow-xs"
                         style={{ left: '77%' }}
                         title="Org Benchmark: 3.85"
                       />
@@ -350,7 +369,7 @@ export default function ManagerDashboardPage() {
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
                         transition={{ duration: 0.5, ease: [0.2, 0, 0, 1] }}
-                        className={`h-full rounded-xs ${
+                        className={`h-full rounded-full ${
                           val >= 4.0
                             ? 'bg-success'
                             : isUnderperforming

@@ -92,7 +92,7 @@ export function TopBar() {
   };
 
   return (
-    <header className="h-12 border-b border-theme-subtle bg-theme-surface flex items-center justify-between px-4 z-20 select-none">
+    <header className="h-14 sticky top-0 z-30 border-b border-theme-subtle bg-theme-surface/90 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 select-none">
       {/* Left: Dynamic Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-sans min-w-0">
         {breadcrumbs.map((crumb, idx) => {
@@ -200,7 +200,7 @@ export function TopBar() {
           <DropdownMenu.Portal>
             <DropdownMenu.Content
               align="end"
-              className="z-50 min-w-[220px] p-1.5 bg-theme-raised border hairline-border rounded-panel shadow-2xl text-xs font-sans"
+              className="z-50 min-w-[240px] p-1.5 bg-theme-raised border hairline-border rounded-panel shadow-2xl text-xs font-sans overflow-hidden [&::-webkit-scrollbar]:hidden"
             >
               <div className="px-3 py-2 border-b border-theme-subtle">
                 <div className="font-semibold text-theme-primary truncate">

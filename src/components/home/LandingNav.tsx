@@ -73,7 +73,7 @@ export function LandingNav() {
             : 'bg-white/70 dark:bg-[#00142E]/70 backdrop-blur-[12px] border-b border-transparent'
         }`}
       >
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
           {/* Brand Horizontal Lockup (Mark >= 32px) */}
           <Link
             href="/"

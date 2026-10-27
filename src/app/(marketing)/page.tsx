@@ -29,8 +29,8 @@ export default function MarketingLandingPage() {
       {/* Background Margin Dot Grid (outer margins 4-6% opacity) */}
       <div className="absolute inset-0 margin-dot-grid pointer-events-none" aria-hidden="true" />
 
-      {/* 1200px Centred Container with 1px Vertical Hairline Desktop Borders */}
-      <div className="landing-frame-container relative z-10 px-4 sm:px-6 lg:px-8 space-y-24 sm:space-y-32 pb-24">
+      {/* 1280px Centred Container with 1px Vertical Hairline Desktop Borders */}
+      <div className="landing-frame-container relative z-10 px-6 space-y-24 sm:space-y-32 pb-24">
 
         {/* ========================================================================= */}
         {/* HERO SECTION: Left Aligned, Wave Line Art Right, Framed Product Window Below */}
@@ -104,8 +104,8 @@ export default function MarketingLandingPage() {
             <div className="flex items-start gap-3 max-w-3xl">
               <span className="heading-tick" aria-hidden="true" />
               <div>
-                <span className="text-xs font-mono uppercase tracking-[0.04em] text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
-                  01 &bull; The Problem Space
+                <span className="text-xs font-sans uppercase tracking-wider text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
+                  The Problem Space
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#0B1B33] dark:text-[#EAF0F8] tracking-[-0.03em] leading-snug">
                   Traditional feedback arrives when it is already too late.{' '}
@@ -174,8 +174,8 @@ export default function MarketingLandingPage() {
             <div className="flex items-start gap-3 max-w-3xl">
               <span className="heading-tick" aria-hidden="true" />
               <div>
-                <span className="text-xs font-mono uppercase tracking-[0.04em] text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
-                  02 &bull; Diagnostic Architecture
+                <span className="text-xs font-sans uppercase tracking-wider text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
+                  Diagnostic Architecture
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#0B1B33] dark:text-[#EAF0F8] tracking-[-0.03em] leading-snug">
                   Three steps: Survey, Insight, Action.{' '}
@@ -207,8 +207,8 @@ export default function MarketingLandingPage() {
             <div className="flex items-start gap-3 max-w-3xl">
               <span className="heading-tick" aria-hidden="true" />
               <div>
-                <span className="text-xs font-mono uppercase tracking-[0.04em] text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
-                  03 &bull; Role-Based Experience
+                <span className="text-xs font-sans uppercase tracking-wider text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
+                  Role-Based Experience
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#0B1B33] dark:text-[#EAF0F8] tracking-[-0.03em] leading-snug">
                   Specialized views for every organizational seat.{' '}
@@ -240,8 +240,8 @@ export default function MarketingLandingPage() {
             <div className="flex items-start gap-3 max-w-3xl">
               <span className="heading-tick" aria-hidden="true" />
               <div>
-                <span className="text-xs font-mono uppercase tracking-[0.04em] text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
-                  04 &bull; Mathematical Privacy
+                <span className="text-xs font-sans uppercase tracking-wider text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
+                  Mathematical Privacy
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#0B1B33] dark:text-[#EAF0F8] tracking-[-0.03em] leading-snug">
                   Privacy guarantees enforced by database rules.{' '}
@@ -279,8 +279,8 @@ export default function MarketingLandingPage() {
             <div className="flex items-start gap-3 max-w-3xl">
               <span className="heading-tick" aria-hidden="true" />
               <div>
-                <span className="text-xs font-mono uppercase tracking-[0.04em] text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
-                  06 &bull; Guided Support
+                <span className="text-xs font-sans uppercase tracking-wider text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
+                  Guided Support
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#0B1B33] dark:text-[#EAF0F8] tracking-[-0.03em] leading-snug">
                   Private wellbeing support and crisis safety.{' '}
@@ -311,8 +311,8 @@ export default function MarketingLandingPage() {
           <div className="flex items-start gap-3 max-w-3xl">
             <span className="heading-tick" aria-hidden="true" />
             <div>
-              <span className="text-xs font-mono uppercase tracking-[0.04em] text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
-                07 &bull; Frequently Asked Questions
+              <span className="text-xs font-sans uppercase tracking-wider text-[#1D6F9F] dark:text-[#4AA3D6] font-semibold block mb-1">
+                Frequently Asked Questions
               </span>
               <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#0B1B33] dark:text-[#EAF0F8] tracking-[-0.03em] leading-snug">
                 Clear answers to architectural and privacy questions.{' '}

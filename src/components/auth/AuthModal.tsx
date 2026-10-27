@@ -207,7 +207,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         {/* Tab Content with Smooth Transitions */}
-        <div className="px-6 py-4 overflow-y-auto flex-1">
+        <div className="px-6 pt-3 pb-5 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <AnimatePresence mode="wait">
             {/* 1. SIGN IN TAB */}
             {activeTab === 'signin' && (
@@ -626,10 +626,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
-                className="space-y-4"
+                className="space-y-3.5 pt-1"
               >
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-control bg-accent/10 border border-accent/20 text-accent font-mono text-[10px] uppercase font-semibold mb-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-control bg-accent/10 border border-accent/20 text-accent font-sans text-[11px] font-medium mb-1.5">
                     <Sparkles size={11} />
                     <span>Instant Local Sandbox • Zero Writes</span>
                   </div>
@@ -641,13 +641,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {/* Role Chooser */}
                   <div>
-                    <label className="block text-xs font-mono text-theme-tertiary uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-sans text-theme-tertiary uppercase tracking-wider mb-1">
                       1. Select Role Perspective
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-sans">
                       {[
                         { id: 'employee', label: 'Employee' },
                         { id: 'manager', label: 'Manager' },
@@ -672,7 +672,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                   {/* 12 Datasets Chooser */}
                   <div>
-                    <label className="block text-xs font-mono text-theme-tertiary uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-sans text-theme-tertiary uppercase tracking-wider mb-1">
                       2. Select Corporate Scenario (12 Available)
                     </label>
                     <select

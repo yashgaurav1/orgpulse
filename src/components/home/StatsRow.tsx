@@ -66,7 +66,7 @@ export function StatsRow() {
             Minimum Group Size
           </div>
           <p className="text-[11px] text-[#5C6778] dark:text-[#9FB2CC] font-sans">
-            Guaranteed $N \ge 5$ mathematical suppression on all reports.
+            Guaranteed N ≥ 5 anonymity threshold on all reports.
           </p>
         </div>
 

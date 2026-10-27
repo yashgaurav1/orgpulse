@@ -95,78 +95,61 @@ export default function EmployeeWorkspacePage() {
         <EmployeeParamsHandler onParams={handleParams} />
       </Suspense>
 
-      {/* Header Banner */}
-        <div className="p-6 bg-theme-raised border hairline-border rounded-panel space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-control bg-success/10 border border-success/20 text-success font-mono text-[10px] uppercase font-semibold">
-                <Lock size={11} />
-                <span>Confidential Employee Sanctuary</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-semibold text-theme-primary tracking-[-0.02em]">
-                Your Wellbeing & Support Workspace
-              </h1>
-              <p className="text-xs sm:text-sm text-theme-secondary font-sans max-w-2xl">
-                A private space to reflect, speak with an AI companion, complete confidential pulse surveys, and connect securely with dedicated HR support without manager visibility.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsSupportModalOpen(true)}
-                className="px-3.5 py-2 bg-theme-surface hover:bg-theme-raised border hairline-border text-theme-primary text-xs font-mono rounded-control transition-colors focus-ring flex items-center gap-2"
-              >
-                <ShieldCheck size={14} className="text-accent" />
-                <span>Confidential Support</span>
-              </button>
-              <button
-                onClick={() => router.push('/survey/demo-token-payments')}
-                className="px-4 py-2 bg-accent hover:bg-accent-hover text-white text-xs font-mono font-medium rounded-control transition-colors shadow-xs flex items-center gap-2 focus-ring"
-              >
-                <ClipboardCheck size={14} />
-                <span>Take Pulse Survey</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Privacy Notice Disclaimer */}
-          <div className="pt-2 border-t border-theme-subtle flex flex-wrap items-center justify-between text-[11px] font-mono text-theme-tertiary">
-            <div>
-              Privacy notice shown before the survey. Legal review required before real use.
-            </div>
-            <div className="text-success font-medium flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-success animate-live-dot" />
-              <span>N ≥ 5 Guaranteed Anonymity Shield</span>
-            </div>
-          </div>
+      {/* Standardized Header directly on canvas */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-theme-subtle">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-theme-primary">
+            Your Wellbeing &amp; Support Workspace
+          </h1>
+          <p className="text-sm opacity-75 text-theme-secondary font-sans max-w-2xl mt-1">
+            A private space to reflect, speak with an AI companion, complete confidential pulse surveys, and connect securely with dedicated HR support without manager visibility.
+          </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-theme-subtle bg-theme-surface px-4 rounded-panel border hairline-border">
-          {[
-            { id: 'overview', label: 'Dashboard & Library', icon: BookOpen },
-            { id: 'chat', label: '24/7 Companion Chat', icon: MessageSquare },
-            { id: 'breathing', label: '4-7-8 Breathing Pacer', icon: Wind },
-            { id: 'checkin', label: 'Daily Self Check-in', icon: Heart },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-3 px-4 text-xs font-mono border-b-2 transition-all ${
-                  isActive
-                    ? 'border-accent text-accent font-semibold'
-                    : 'border-transparent text-theme-secondary hover:text-theme-primary'
-                }`}
-              >
-                <Icon size={14} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsSupportModalOpen(true)}
+            className="px-3.5 py-2 bg-theme-surface hover:bg-theme-raised border hairline-border text-theme-primary text-xs font-sans rounded-control transition-colors focus-ring flex items-center gap-2"
+          >
+            <ShieldCheck size={14} className="text-accent" />
+            <span>Confidential Support</span>
+          </button>
+          <button
+            onClick={() => router.push('/survey/demo-token-payments')}
+            className="px-4 py-2 bg-accent hover:bg-accent-hover text-white text-xs font-sans font-medium rounded-control transition-colors shadow-xs flex items-center gap-2 focus-ring"
+          >
+            <ClipboardCheck size={14} />
+            <span>Take Pulse Survey</span>
+          </button>
         </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-6 border-b border-theme-subtle text-xs font-sans overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        {[
+          { id: 'overview', label: 'Dashboard & Library', icon: BookOpen },
+          { id: 'chat', label: '24/7 Companion Chat', icon: MessageSquare },
+          { id: 'breathing', label: '4-7-8 Breathing Pacer', icon: Wind },
+          { id: 'checkin', label: 'Daily Self Check-in', icon: Heart },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 py-3 px-1 text-xs font-sans border-b-2 transition-all whitespace-nowrap ${
+                isActive
+                  ? 'border-accent text-accent font-semibold'
+                  : 'border-transparent text-theme-secondary hover:text-theme-primary'
+              }`}
+            >
+              <Icon size={14} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
         {/* Tab Contents */}
         {activeTab === 'overview' && (

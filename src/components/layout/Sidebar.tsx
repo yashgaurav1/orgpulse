@@ -81,7 +81,7 @@ export function Sidebar() {
   return (
     <aside
       className={`relative flex-shrink-0 bg-[#03173B] text-white border-r border-[#0D2550] flex flex-col transition-all duration-200 select-none z-30 ${
-        collapsed ? 'w-[60px]' : 'w-[245px]'
+        collapsed ? 'w-[60px]' : 'w-[272px]'
       }`}
     >
       {/* Brand Header */}
@@ -122,7 +122,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation Sections */}
-      <div className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
+      <div className="flex-1 overflow-y-auto py-3 px-2 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {NAV_SECTIONS.map((section) => (
           <div key={section.title} className="space-y-1">
             {!collapsed && (
@@ -170,7 +170,7 @@ export function Sidebar() {
 
                   {!collapsed && item.badge && (
                     <span
-                      className={`px-1.5 py-0.2 rounded-control text-[9px] font-mono tracking-wider uppercase ${
+                      className={`px-1.5 py-0.5 rounded-control text-[10px] font-mono tracking-wider uppercase shrink-0 ${
                         isActive
                           ? 'bg-[#2E8EBF] text-white'
                           : 'bg-[#0A2347] text-[#9FB2CC] border border-[#1F3F6E]'

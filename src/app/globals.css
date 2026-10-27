@@ -114,15 +114,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 1200px Frame with Hairline Edges & Margin Dot Grid */
+/* 80rem / 1280px (max-w-7xl) Frame with Hairline Edges & Margin Dot Grid */
 .landing-frame-container {
   position: relative;
-  max-width: 1200px;
+  max-width: 80rem;
   margin-left: auto;
   margin-right: auto;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1280px) {
   .landing-frame-container::before {
     content: '';
     position: absolute;

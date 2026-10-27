@@ -233,13 +233,10 @@ export default function DirectorDashboardPage() {
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-theme-subtle">
         <div>
-          <div className="text-[11px] font-mono uppercase tracking-[0.04em] text-accent font-semibold">
-            Governance • Executive Overview
-          </div>
-          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-theme-primary mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-theme-primary">
             Senior Leadership Diagnostic Scorecard
           </h1>
-          <p className="text-xs text-theme-secondary font-sans mt-0.5">
+          <p className="text-sm opacity-75 text-theme-secondary font-sans mt-1">
             Cross-squad diagnostic oversight, 6 wellbeing drivers deep-dive, and action plan volume counts.
           </p>
         </div>
@@ -248,7 +245,7 @@ export default function DirectorDashboardPage() {
         <div className="flex items-center gap-2 print:hidden">
           <button
             onClick={handlePrintSummary}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-theme-surface hover:bg-theme-raised border hairline-border rounded-control text-xs font-mono text-theme-primary transition-colors focus-ring"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-theme-surface hover:bg-theme-raised border hairline-border rounded-control text-xs font-sans text-theme-primary transition-colors focus-ring"
             title="Print Executive Summary"
           >
             <Printer size={13} />
@@ -311,11 +308,11 @@ export default function DirectorDashboardPage() {
       </div>
 
       {/* 3 View Tabs: Trends, 6 Drivers, Action & Support Counts */}
-      <div className="flex items-center gap-2 border-b border-theme-subtle text-xs font-mono print:hidden">
+      <div className="flex items-center gap-6 border-b border-theme-subtle text-xs font-sans overflow-x-auto [&::-webkit-scrollbar]:hidden print:hidden">
         {[
-          { id: 'trends', label: '1. Company Overview Trends', icon: TrendingUp },
-          { id: 'drivers', label: '2. 6 Drivers Deep-Dive', icon: BarChart3 },
-          { id: 'actions', label: '3. Action & Support Volumes', icon: HeartHandshake },
+          { id: 'trends', label: 'Company Overview Trends', icon: TrendingUp },
+          { id: 'drivers', label: '6 Drivers Deep-Dive', icon: BarChart3 },
+          { id: 'actions', label: 'Action & Support Volumes', icon: HeartHandshake },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeView === tab.id;
@@ -323,13 +320,13 @@ export default function DirectorDashboardPage() {
             <button
               key={tab.id}
               onClick={() => setActiveView(tab.id as any)}
-              className={`flex items-center gap-2 py-2.5 px-3 font-medium transition-colors border-b-2 -mb-[1px] ${
+              className={`flex items-center gap-2 py-2.5 px-1 font-medium transition-colors border-b-2 -mb-[1px] whitespace-nowrap ${
                 isActive
                   ? 'border-accent text-accent font-semibold'
                   : 'border-transparent text-theme-secondary hover:text-theme-primary'
               }`}
             >
-              <Icon size={13} />
+              <Icon size={14} />
               <span>{tab.label}</span>
             </button>
           );
@@ -340,10 +337,10 @@ export default function DirectorDashboardPage() {
       {activeView === 'trends' && (
         <div className="space-y-6">
           {/* Principle Callout */}
-          <div className="p-4 rounded-panel bg-theme-raised border hairline-border space-y-1 text-xs font-mono">
+          <div className="p-4 rounded-panel bg-theme-raised border hairline-border space-y-1 text-xs font-sans">
             <div className="text-theme-primary font-semibold flex items-center gap-2">
               <Shield size={14} className="text-accent" />
-              <span>Goodhart-Resistant Operational Governance</span>
+              <span>Operational Governance & Data Use</span>
             </div>
             <p className="text-theme-secondary font-sans leading-relaxed text-[13px]">
               Engineering satisfaction scores are never used for stack-ranking, performance ratings, or manager compensation. Directors evaluate managers exclusively on their commitment follow-through (stay interviews completed, 14-day actions logged, and blameless retrospectives held).

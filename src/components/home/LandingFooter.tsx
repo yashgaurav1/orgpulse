@@ -1,12 +1,43 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { ShieldCheck, HelpCircle, ArrowUpRight, ChevronRight } from 'lucide-react';
 
 export function LandingFooter() {
   const { openAuthModal } = useAuth();
+  const [hideFaqPill, setHideFaqPill] = useState(false);
+
+  useEffect(() => {
+    const faqEl = document.getElementById('faq');
+    const footerEl = document.querySelector('footer');
+
+    if (!faqEl && !footerEl) return;
+
+    let faqIntersecting = false;
+    let footerIntersecting = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === faqEl) {
+            faqIntersecting = entry.isIntersecting;
+          }
+          if (entry.target === footerEl) {
+            footerIntersecting = entry.isIntersecting;
+          }
+        });
+        setHideFaqPill(faqIntersecting || footerIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+
+    if (faqEl) observer.observe(faqEl);
+    if (footerEl) observer.observe(footerEl);
+
+    return () => observer.disconnect();
+  }, []);
 
   const scrollToFaq = () => {
     const el = document.getElementById('faq');
@@ -18,7 +49,7 @@ export function LandingFooter() {
   return (
     <>
       <footer className="relative bg-[#03173B] text-[#9FB2CC] border-t border-[#0D2550] pt-16 pb-12 text-xs font-sans">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-12">
+        <div className="max-w-7xl mx-auto px-6 space-y-12">
           {/* Top Row: Brand & Quick Demo Sandbox CTA */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#0D2550]">
             <div className="space-y-2">
@@ -30,7 +61,7 @@ export function LandingFooter() {
                 />
               </Link>
               <p className="text-[12px] text-[#6782A5] max-w-sm leading-relaxed">
-                Engineering engagement &amp; wellbeing diagnostics platform. Mathematical privacy protections built directly into database invariants.
+                Engineering engagement and wellbeing diagnostics. Privacy is enforced at the database layer: responses from groups under 5 are automatically suppressed.
               </p>
             </div>
 
@@ -216,7 +247,13 @@ export function LandingFooter() {
       </footer>
 
       {/* Floating Pill: 'Questions? Read the FAQ' */}
-      <div role="complementary" aria-label="Quick Help" className="fixed bottom-5 right-5 z-40">
+      <div
+        role="complementary"
+        aria-label="Quick Help"
+        className={`fixed bottom-5 right-5 z-40 transition-all duration-300 ${
+          hideFaqPill ? 'opacity-0 pointer-events-none translate-y-2' : 'opacity-100 translate-y-0'
+        }`}
+      >
         <button
           type="button"
           onClick={scrollToFaq}

@@ -48,6 +48,8 @@ interface DataTableProps<T extends { id: string }> {
   onBulkExport?: (selectedIds: string[]) => void;
   defaultPageSize?: number;
   className?: string;
+  tableTitle?: React.ReactNode;
+  exportButtonLabel?: string;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -62,6 +64,8 @@ export function DataTable<T extends { id: string }>({
   onBulkExport,
   defaultPageSize = 10,
   className = '',
+  tableTitle,
+  exportButtonLabel,
 }: DataTableProps<T>) {
   // Density state
   const [density, setDensity] = useState<TableDensity>('standard');
@@ -204,7 +208,13 @@ export function DataTable<T extends { id: string }>({
     <div className={`relative rounded-panel bg-theme-surface border hairline-border overflow-hidden flex flex-col ${className}`}>
       {/* Table Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 border-b border-theme-subtle bg-theme-surface">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {tableTitle && (
+            <>
+              <span className="text-xs font-semibold text-theme-primary">{tableTitle}</span>
+              <span className="text-theme-tertiary text-xs">|</span>
+            </>
+          )}
           {/* Density Toggle */}
           <div className="flex items-center p-0.5 bg-theme-raised border border-theme-subtle rounded-control">
             <button
@@ -302,7 +312,7 @@ export function DataTable<T extends { id: string }>({
               title="Export all or selected rows"
             >
               <FileDown size={13} strokeWidth={1.5} />
-              <span>Export CSV</span>
+              <span>{exportButtonLabel || 'Export CSV'}</span>
             </button>
           )}
         </div>

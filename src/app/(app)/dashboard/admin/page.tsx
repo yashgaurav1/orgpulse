@@ -191,125 +191,121 @@ export default function CompanyAdminPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Header */}
-        <div className="p-6 bg-theme-raised border hairline-border rounded-panel space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-control bg-accent/10 border border-accent/20 text-accent font-mono text-[10px] uppercase font-semibold">
-                <Shield size={11} />
-                <span>Tenant Governance & IAM</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-semibold text-theme-primary tracking-[-0.02em]">
-                Company Administration & Privacy Controls
-              </h1>
-              <p className="text-xs sm:text-sm text-theme-secondary font-sans max-w-2xl">
-                Manage registration keys, role authorization queues, organizational units, and emergency AI kill-switches.
+      {/* Standardized Header directly on canvas */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-theme-subtle">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-theme-primary">
+            Company Administration & Privacy Controls
+          </h1>
+          <p className="text-sm opacity-75 text-theme-secondary font-sans mt-1 max-w-2xl">
+            Manage registration keys, role authorization queues, organizational units, and emergency AI kill-switches.
+          </p>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="flex items-center gap-3 font-sans text-xs">
+          <div className="px-3 py-2 bg-theme-surface border hairline-border rounded-control text-center min-w-[100px]">
+            <div className="text-[10px] text-theme-tertiary uppercase font-sans font-medium">Pending Approvals</div>
+            <div className="text-lg font-bold font-mono text-accent tabular-nums">{pendingApprovals.length}</div>
+          </div>
+          <div className="px-3 py-2 bg-theme-surface border hairline-border rounded-control text-center min-w-[100px]">
+            <div className="text-[10px] text-theme-tertiary uppercase font-sans font-medium">Active Squads</div>
+            <div className="text-lg font-bold font-mono text-theme-primary tabular-nums">12</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-6 border-b border-theme-subtle text-xs font-sans overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        {[
+          { id: 'approvals', label: `Role Approvals (${pendingApprovals.length})`, icon: Users },
+          { id: 'tenant', label: 'Company Key & Tenant', icon: KeyRound },
+          { id: 'org', label: 'Organization Units', icon: Building2 },
+          { id: 'governance', label: 'AI Kill-Switch & Privacy', icon: Sliders },
+          { id: 'audit', label: 'Immutable Audit Log', icon: Clock },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 py-3 px-1 text-xs font-sans border-b-2 transition-all whitespace-nowrap ${
+                isActive
+                  ? 'border-accent text-accent font-semibold'
+                  : 'border-transparent text-theme-secondary hover:text-theme-primary'
+              }`}
+            >
+              <Icon size={14} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab 1: Role Approvals Queue */}
+      {activeTab === 'approvals' && (
+        <div className="p-6 bg-theme-surface border hairline-border rounded-panel space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-theme-primary">
+                Pending Elevated Role Authorization Requests
+              </h2>
+              <p className="text-xs text-theme-secondary font-sans">
+                In accordance with security rules, employees cannot self-assign Manager, HRBP, or Executive permissions.
               </p>
             </div>
-
-            {/* Quick Stats */}
-            <div className="flex items-center gap-3 font-mono text-xs">
-              <div className="p-2.5 bg-theme-surface border hairline-border rounded-control text-center min-w-[90px]">
-                <div className="text-[10px] text-theme-tertiary uppercase">Pending Approvals</div>
-                <div className="text-base font-bold text-accent">{pendingApprovals.length}</div>
-              </div>
-              <div className="p-2.5 bg-theme-surface border hairline-border rounded-control text-center min-w-[90px]">
-                <div className="text-[10px] text-theme-tertiary uppercase">Active Squads</div>
-                <div className="text-base font-bold text-theme-primary">12</div>
-              </div>
-            </div>
           </div>
-        </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex border-b border-theme-subtle bg-theme-surface px-4 rounded-panel border hairline-border">
-          {[
-            { id: 'approvals', label: `Role Approvals (${pendingApprovals.length})`, icon: Users },
-            { id: 'tenant', label: 'Company Key & Tenant', icon: KeyRound },
-            { id: 'org', label: 'Organization Units', icon: Building2 },
-            { id: 'governance', label: 'AI Kill-Switch & Privacy', icon: Sliders },
-            { id: 'audit', label: 'Immutable Audit Log', icon: Clock },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-3 px-4 text-xs font-mono border-b-2 transition-all ${
-                  isActive
-                    ? 'border-accent text-accent font-semibold'
-                    : 'border-transparent text-theme-secondary hover:text-theme-primary'
-                }`}
-              >
-                <Icon size={14} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Tab 1: Role Approvals Queue */}
-        {activeTab === 'approvals' && (
-          <div className="p-6 bg-theme-surface border hairline-border rounded-panel space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-semibold text-theme-primary">
-                  Pending Elevated Role Authorization Requests
-                </h2>
-                <p className="text-xs text-theme-secondary font-sans">
-                  In accordance with security rules, employees cannot self-assign Manager, HRBP, or Executive permissions.
-                </p>
-              </div>
+          {pendingApprovals.length === 0 ? (
+            <div className="p-8 text-center bg-theme-raised/40 border hairline-border rounded-control font-mono text-xs text-theme-tertiary">
+              <CheckCircle2 size={24} className="mx-auto text-success mb-2" />
+              <span>All role requests have been reviewed and resolved.</span>
             </div>
-
-            {pendingApprovals.length === 0 ? (
-              <div className="p-8 text-center bg-theme-raised/40 border hairline-border rounded-control font-mono text-xs text-theme-tertiary">
-                <CheckCircle2 size={24} className="mx-auto text-success mb-2" />
-                <span>All role requests have been reviewed and resolved.</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {pendingApprovals.map((req) => (
-                  <div
-                    key={req.id}
-                    className="p-4 bg-theme-raised border hairline-border rounded-control flex flex-wrap items-center justify-between gap-3 text-xs"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-theme-primary">{req.name}</span>
-                        <span className="font-mono text-theme-tertiary">({req.email})</span>
-                        <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent font-mono uppercase text-[10px]">
-                          Requested: {req.requestedRole}
-                        </span>
-                      </div>
-                      <div className="font-mono text-theme-secondary text-[11px]">
-                        Target Scope: {req.team} • Submitted: {req.submittedAt}
-                      </div>
+          ) : (
+            <div className="space-y-3">
+              {pendingApprovals.map((req) => (
+                <div
+                  key={req.id}
+                  className="p-4 bg-theme-raised border hairline-border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
+                >
+                  {/* Left Column: Details */}
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-theme-primary font-sans text-sm">{req.name}</span>
+                      <span className="font-mono text-theme-tertiary text-xs">({req.email})</span>
+                      <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent font-mono uppercase text-[10px] font-medium">
+                        REQUESTED: {req.requestedRole}
+                      </span>
                     </div>
-
-                    <div className="flex items-center gap-2 font-mono">
-                      <button
-                        onClick={() => handleRejectRole(req.id, req.name, req.requestedRole)}
-                        className="px-3 py-1.5 bg-theme-surface hover:bg-danger/10 border border-theme-border hover:border-danger/40 text-danger rounded-control transition-colors flex items-center gap-1.5 focus-ring"
-                      >
-                        <XCircle size={13} />
-                        <span>Reject</span>
-                      </button>
-                      <button
-                        onClick={() => handleApproveRole(req.id, req.name, req.requestedRole)}
-                        className="px-3.5 py-1.5 bg-accent hover:bg-accent-hover text-white rounded-control font-medium transition-colors shadow-xs flex items-center gap-1.5 focus-ring"
-                      >
-                        <CheckCircle2 size={13} />
-                        <span>Approve Elevated Role</span>
-                      </button>
+                    <div className="text-theme-secondary text-[11px] font-sans">
+                      Target Scope: <span className="font-medium text-theme-primary">{req.team}</span> &bull; Submitted: <span className="font-mono">{req.submittedAt}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+
+                  {/* Right Column: Actions locked to right edge */}
+                  <div className="shrink-0 flex items-center gap-2.5">
+                    <button
+                      onClick={() => handleRejectRole(req.id, req.name, req.requestedRole)}
+                      className="px-3 py-1.5 bg-theme-surface hover:bg-danger/10 border border-theme-border hover:border-danger/40 text-danger rounded-control transition-colors flex items-center gap-1.5 font-sans text-xs focus-ring"
+                    >
+                      <XCircle size={13} />
+                      <span>Reject</span>
+                    </button>
+                    <button
+                      onClick={() => handleApproveRole(req.id, req.name, req.requestedRole)}
+                      className="px-3.5 py-1.5 bg-accent hover:bg-accent-hover text-white rounded-control font-medium transition-colors shadow-xs flex items-center gap-1.5 font-sans text-xs focus-ring"
+                    >
+                      <CheckCircle2 size={13} />
+                      <span>Approve Elevated Role</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
         {/* Tab 2: Company Key & Tenant Setup */}
         {activeTab === 'tenant' && (
@@ -340,7 +336,7 @@ export default function CompanyAdminPage() {
                 </div>
                 <button
                   onClick={handleCopyCode}
-                  className="h-11 px-4 bg-theme-surface hover:bg-theme-raised border hairline-border rounded-control text-xs font-mono text-theme-primary transition-colors flex items-center gap-1.5 focus-ring"
+                  className="h-11 px-4 bg-theme-surface hover:bg-theme-raised border hairline-border rounded-control text-xs font-sans font-medium text-theme-primary transition-colors flex items-center gap-1.5 focus-ring"
                 >
                   <Copy size={13} />
                   <span>{copiedCode ? 'Copied!' : 'Copy Key'}</span>
@@ -348,13 +344,13 @@ export default function CompanyAdminPage() {
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-theme-subtle">
-                <span className="text-[11px] font-mono text-theme-tertiary">
+                <span className="text-[11px] font-sans text-theme-tertiary">
                   Rotating revokes the old code immediately. Existing accounts remain unaffected.
                 </span>
                 <button
                   onClick={handleRotateCode}
                   disabled={isRotating}
-                  className="px-3 py-1.5 bg-danger/10 hover:bg-danger/20 border border-danger/30 text-danger rounded-control text-xs font-mono flex items-center gap-1.5 transition-colors focus-ring"
+                  className="px-3 py-1.5 bg-danger/10 hover:bg-danger/20 border border-danger/30 text-danger rounded-control text-xs font-sans font-medium flex items-center gap-1.5 transition-colors focus-ring"
                 >
                   <RefreshCw size={12} className={isRotating ? 'animate-spin' : ''} />
                   <span>{isRotating ? 'Rotating...' : 'Rotate Key'}</span>
@@ -362,7 +358,7 @@ export default function CompanyAdminPage() {
               </div>
             </div>
 
-            <div className="p-4 bg-theme-raised border hairline-border rounded-control space-y-2 text-xs font-mono">
+            <div className="p-4 bg-theme-raised border hairline-border rounded-control space-y-2 text-xs font-sans">
               <div className="text-theme-primary font-semibold">Tenant Identification</div>
               <div className="flex justify-between text-theme-secondary">
                 <span>Tenant Name:</span>
@@ -370,11 +366,11 @@ export default function CompanyAdminPage() {
               </div>
               <div className="flex justify-between text-theme-secondary">
                 <span>Tenant ID:</span>
-                <span className="text-theme-tertiary">comp-nexus-enterprise-01</span>
+                <span className="text-theme-tertiary font-mono">comp-nexus-enterprise-01</span>
               </div>
               <div className="flex justify-between text-theme-secondary">
                 <span>Verified Email Domain:</span>
-                <span className="text-theme-primary">@enterprise.corp</span>
+                <span className="text-theme-primary font-mono">@enterprise.corp</span>
               </div>
             </div>
           </div>
@@ -392,13 +388,13 @@ export default function CompanyAdminPage() {
                   Structure your business units and delivery squads. Structural updates apply to the upcoming survey cycle.
                 </p>
               </div>
-              <button className="px-3.5 py-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-mono rounded-control transition-colors shadow-xs flex items-center gap-1.5">
+              <button className="px-3.5 py-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-sans font-medium rounded-control transition-colors shadow-xs flex items-center gap-1.5">
                 <Plus size={13} />
                 <span>Add Business Unit</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-sans">
               {businessUnits.map((bu) => (
                 <div
                   key={bu.id}
@@ -406,11 +402,11 @@ export default function CompanyAdminPage() {
                 >
                   <div>
                     <div className="font-semibold text-theme-primary">{bu.name}</div>
-                    <div className="text-[11px] font-mono text-theme-tertiary">
+                    <div className="text-[11px] text-theme-tertiary">
                       {bu.squadCount} Delivery Squads Assigned
                     </div>
                   </div>
-                  <button className="text-xs font-mono text-accent hover:underline">
+                  <button className="text-xs font-sans font-medium text-accent hover:underline">
                     Edit Units
                   </button>
                 </div>
@@ -456,7 +452,7 @@ export default function CompanyAdminPage() {
 
                 <button
                   onClick={handleToggleAiKillSwitch}
-                  className={`px-4 py-1.5 rounded-control text-xs font-mono font-medium transition-colors focus-ring shadow-xs ${
+                  className={`px-4 py-1.5 rounded-control text-xs font-sans font-medium transition-colors focus-ring shadow-xs ${
                     aiKillSwitchActive
                       ? 'bg-success hover:bg-success-hover text-white'
                       : 'bg-danger hover:bg-danger-hover text-white'
@@ -471,7 +467,7 @@ export default function CompanyAdminPage() {
               </p>
             </div>
 
-            <div className="p-4 bg-theme-raised border hairline-border rounded-control space-y-2 text-xs font-mono">
+            <div className="p-4 bg-theme-raised border hairline-border rounded-control space-y-2 text-xs font-sans">
               <div className="text-theme-primary font-semibold">Automated Retention Policy</div>
               <div className="flex justify-between text-theme-secondary">
                 <span>Raw Response Deletion Window:</span>
@@ -479,7 +475,7 @@ export default function CompanyAdminPage() {
               </div>
               <div className="flex justify-between text-theme-secondary">
                 <span>Aggregate Minimum Group:</span>
-                <span className="text-success font-bold">N ≥ 5 Respondents</span>
+                <span className="text-success font-bold font-mono">N ≥ 5 Respondents</span>
               </div>
               <div className="flex justify-between text-theme-secondary">
                 <span>AI Comment Synthesis Minimum:</span>
